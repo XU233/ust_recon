@@ -15,20 +15,29 @@ load([path, 'calibrated_coordinates\calibrated_coords_2.mat']);
 valid_id = 1:512;
 % valid_id(fault_id) = [];
 element_num = length(valid_id);
-xk = tx_x(valid_id,1)*1e3;
-yk = tx_x(valid_id,2)*1e3;
 
-% load('calibration_TAT.mat');
+xk = tx_x(valid_id,1);
+yk = tx_x(valid_id,2);
+
+% R = 610.8 * 1e-3/2;    %mm, For Breast transducer
+% ini_angle = 0; % the angle of the first step (in degree)
+% Nstep = 512; %Trans.relements;
+% angle_per_step = 2*pi/Nstep;   % angle per step, 1.5 degree/step (in radian)
+% angle_step1 = ini_angle/180*pi;
+% detector_angle = (0:Nstep-1)*angle_per_step+angle_step1;
+% xk = cos(detector_angle)*R; %xk./1000; %
+% yk = sin(detector_angle)*R; %yk./1000; %
 
 fs = 20;    % sample rate [MHz]
 delay = (2^13-1)/80*20; %750nm
+% delay = (2^13-1)/80e6;
 
 %%
 DAQ_all = single(Data_all(valid_id,:));
 DAQ_all = single(DAQ_all - mean(DAQ_all,1));
-DAQ_all = permute(DAQ_all,[2,1,3]);
+% DAQ_all = permute(DAQ_all,[2,1,3]);
 
-DAQ_all = reshape( DAQ_all,size(DAQ_all,1), 512, numel(DAQ_all)/512/size(DAQ_all,1) );
+DAQ_all = reshape( DAQ_all,size(DAQ_all,1), 512,numel(DAQ_all)/512/size(DAQ_all,1) );
 
 %% 
 x_range = 64;   % [mm]
@@ -40,14 +49,11 @@ center_y = 0;   % [mm]
 X = (-(x_range*res_factor/2-1):(x_range*res_factor/2))/res_factor - center_x; % FOV
 Y = (-(y_range*res_factor/2-1):(y_range*res_factor/2))/res_factor - center_y;
 
-% X = (-255:256)*0.2-0; % FOV
-% Y = (-255:256)*0.2+0;
+X = (-255:256)*0.2-0; % FOV
+Y = (-255:256)*0.2+0;
 
 % v = linspace(1.486,1.502,6);
 v = 1.483; % water speed of sound [km/s]
-
-%%
-% v = 1.483; % water speed of sound [km/s]
 
 for i = 1:length(delay)
 % for i = 1:length(v)
@@ -57,7 +63,7 @@ tic
 reIMG2 = subfunc_2d_cuda_reduce(DAQ_all,X,Y,v,delay(i),xk,yk,fs);
 toc
 
-figure('Name',string(v)); 
+figure('Name','XY'); 
 XY_view = squeeze(max((reIMG2(:,:)),[],3));
 imshow(XY_view,[]) % Top view, XY
 xlabel ('--y++')

@@ -1,4 +1,4 @@
-function reIMG = subfunc_2d_cuda_reduce(data,X,Y,v1,fixedDelay,xk,yk,fs)
+function reIMG = subfunc_3d_cuda_reduce(data,X,Y,Z,v1,fixedDelay,xk,yk,zk,fs)
 % data: raw data axes time, transducer, frame
 % X: x coordinates of reconstructed frame, size Ny by Nx by Nz (mm units)
 % Y: y coordinates of reconstructed frame, size Ny by Nx by Nz (mm units)
@@ -19,16 +19,16 @@ tv = fs/v1;
 %parameters of image
 Nx = numel(X);
 Ny = numel(Y);
-Nz = numel(0);
+Nz = numel(Z);
 % receiver position
 
 
 X = gpuArray(single(X));
 Y = gpuArray(single(Y));
-Z = gpuArray(single(0));
+Z = gpuArray(single(Z));
 xk = gpuArray(single(xk));
 yk = gpuArray(single(yk));
-zk = gpuArray(single(0));
+zk = gpuArray(single(zk));
 
 
 reIMG = gpuArray.zeros(Nx,Ny,Nz,'single');
