@@ -1,12 +1,10 @@
 
-clearvars
-close all
+% clearvars
+% close all
 
 % load('/scratch/spxdavis/15mhz_3d/PSdata_10172022/center_20MHz_remap.mat');%00_00_10.mat')
 path = 'C:\Users\Legion12\Downloads\sdk1.1 20220429\SDK 1.1\examples\matlab\Data 2022-10-11\';
 filename = 'lessOffCenter_20MHz_remap';
-% filename = 'Data 2022-12-01 19-55-30_avg-remap';
-
 load([path, filename, '.mat']);
 data3 = single(mean(VOLTAGE_remap,3)');
 %data3 = data3(:,:,:)/size(data3,2)/size(data3,2);

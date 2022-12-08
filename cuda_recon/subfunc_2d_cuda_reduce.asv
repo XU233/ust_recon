@@ -24,18 +24,15 @@ tv = fs/v1;
 Nx = numel(X);
 Ny = numel(Y);
 Nz = numel(0);
-
 % receiver position
-xk = gpuArray(single(xk));
-yk = gpuArray(single(yk));
-zk = gpuArray(single(0));
 
-% image position
+
 X = gpuArray(single(X));
 Y = gpuArray(single(Y));
 Z = gpuArray(single(0));
-
-map_epim = gpuArray(single(map_epim));
+xk = gpuArray(single(xk));
+yk = gpuArray(single(yk));
+zk = gpuArray(single(0));
 
 
 reIMG = gpuArray.zeros(Nx,Ny,Nz,'single');
@@ -47,7 +44,7 @@ data = gpuArray(data);
 k = parallel.gpu.CUDAKernel('pct_ubp_reduce.ptx','pct_ubp_reduce.cu');
 k.ThreadBlockSize = [Nk 1 1];
 k.GridSize = [Nx*Nphi,Ny,Nz];
-reIMG = feval(k,reIMG,X,Y,Z,xk(:),yk(:),zk(:),Nx,uint16(log2(Nx)),Nphi,Nt+2,fixedDelay,map_epim,tv,data);
+reIMG = feval(k,reIMG,X,Y,Z,xk(:),yk(:),zk(:),Nx,uint16(log2(Nx)),Nphi,Nt+2,fixedDelay,tv,data);
 
 reIMG = gather(reIMG);
 %reIMG = reIMG./weights;

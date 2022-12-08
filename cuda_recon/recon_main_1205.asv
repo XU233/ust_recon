@@ -59,7 +59,7 @@ for i = 1:Trans.t_Nsteps
     Trans.t_focus = Trans.t_xyz(:,i);
     Trans.apo_receive = Trans.r_apo_list(:,i);
     
-    stat_disp = fprintf('recon: %i / %i \n', i, Trans.t_Nsteps);
+    stat_disp = fprintf('recon: %i / %i \n',num2str(i),'/',num2str(Trans.t_Nsteps),'\n']);
     
     [Reconpara, Display]= f_recon_rusct_para(Acq,Trans,Display);
     Reconpara.map_epim_xoy(Reconpara.map_epim_xoy < 1) = 1; % remove zeros points
