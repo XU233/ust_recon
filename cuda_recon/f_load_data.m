@@ -1,29 +1,8 @@
-
-
-
-% raw_data 512 x 4000 x 320
-
-
 function [raw_data, Acq]= f_load_data(Para)
 
 load([Para.datapath,Para.dataname]);
 Acq.fs = 5e6; % sampling rate
 Acq.Nf = 512;% number of frames
-
-% load channel maps
-% CH_1_128 = load('.\ch_map\array2DAQ_1').array2DAQ_1(:,1:2);
-% CH_129_256 = load('.\ch_map\array2DAQ_129').array2DAQ_129(:,1:2);
-% CH_257_384 = load('.\ch_map\array2DAQ_257').array2DAQ_257(:,1:2);
-% CH_385_512 = load('.\ch_map\array2DAQ_385').array2DAQ_385(:,1:2);
-% 
-% [N_ch,N_samp,N_fr] = size(VOLTAGE);
-% VOLTAGE_remap = zeros(N_ch,N_samp,N_fr);
-% 
-% VOLTAGE_remap(CH_257_384(:,1),:,:) = VOLTAGE(1:128,:,:);
-% VOLTAGE_remap(CH_129_256(:,1),:,:) = VOLTAGE(129:256,:,:);
-% 
-% VOLTAGE_remap(CH_1_128(:,1),:,:) = VOLTAGE((1:128)+256,:,:);
-% VOLTAGE_remap(CH_385_512(:,1),:,:) = VOLTAGE((129:256)+256,:,:);
 
 raw_data = double(VOLTAGE_remap);
 clear VOLTAGE_remap

@@ -1,4 +1,4 @@
-function reIMG = subfunc_2d_cuda_reduce(data,X,Y,v1,fixedDelay,xk,yk,fs)
+function reIMG = subfunc_3d_cuda_reduce(data,X,Y,v1,fixedDelay,xk,yk,fs)
 % data: raw data axes time, transducer, frame
 % X: x coordinates of reconstructed frame, size Ny by Nx by Nz (mm units)
 % Y: y coordinates of reconstructed frame, size Ny by Nx by Nz (mm units)
@@ -9,7 +9,8 @@ function reIMG = subfunc_2d_cuda_reduce(data,X,Y,v1,fixedDelay,xk,yk,fs)
 
 
 tic
-[Nt, Nk, Nphi] = size(data);   % Nstep : number of steps, Nsample : number of samples per step   
+% [Nt, Nk, Nphi] = size(data);   % Nstep : number of steps, Nsample : number of samples per step   
+[Nk, Nt, Nphi] = size(data);   % Nstep : number of steps, Nsample : number of samples per step   
 %fs = 40;                            % sampling frequency (MHz)
 %fs = 1/kgrid.dt/10^6;
 tv = fs/v1;
@@ -32,8 +33,7 @@ zk = gpuArray(single(0));
 
 
 reIMG = gpuArray.zeros(Nx,Ny,Nz,'single');
-data = padarray(data,[1,0,0],'both');
-data = permute(data,[2,1,3]);
+data = padarray(data,[0,1,0],'both');
 data = gpuArray(data);
 
     
