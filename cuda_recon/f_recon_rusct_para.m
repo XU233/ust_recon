@@ -27,7 +27,7 @@ function [Reconpara, Display] = f_recon_rusct_para(Acq,Trans,Display)
 %% CHANGED INDEX
 d_emit = sqrt((image_xm - Trans.t_focus(1)).^2 + (image_ym - Trans.t_focus(2)).^2 + Trans.t_focus(3)^2);% distance from source
 %%
-d_emit = d_emit + Trans.t_foclens; % consider transducer focus
+% d_emit = d_emit + Trans.t_foclens; % consider transducer focus
 
 % % plus reception delay for each pixel
 % d_receive = zeros(Display.Ny, Display.Nx, Trans.r_elements);

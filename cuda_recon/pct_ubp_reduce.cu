@@ -18,12 +18,13 @@ __global__ void ubp(
                       const float * xk, 
                       const float * yk, 
                       const float * zk,
+					  const float * xe,
+					  const float * ye,
                       const unsigned int Nx,
                       const unsigned int log2Nx,
                       const unsigned int Nphi, 
                       const unsigned int Nt,
                       const float fixedDelay, 
-					  const float * map_epim,
                       const float tv, 
                       const float * data ) {
     // Work out which thread we are
@@ -47,8 +48,13 @@ __global__ void ubp(
     float const xki = xk[transducerIdx];
     float const yki = yk[transducerIdx];
     float const zki = zk[transducerIdx];
-    float const d = sqrt( (xi-xki) * (xi-xki) + (yi-yki) * (yi-yki) + (zi-zki) * (zi-zki));
-    float idxf = rintf(d * tv) - fixedDelay + map_epim[globalVolumeIndex];
+	
+	float const xei = xe[angleIdx];
+    float const yei = ye[angleIdx];
+    
+	float const d = sqrt( (xi-xki) * (xi-xki) + (yi-yki) * (yi-yki) + (zi-zki) * (zi-zki));
+	float const d_emit = sqrt( (xi-xei) * (xi-xei) + (yi-yei) * (yi-yei) );
+    float idxf = rintf( (d + d_emit)* tv) - fixedDelay;
     int idx = __float2int_rd(idxf);
     idx = max( idx, 0);
     idx = min( idx, Nt - 1); 

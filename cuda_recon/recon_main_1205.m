@@ -21,7 +21,7 @@ raw_data = reshape( raw_data, 512, size(raw_data,2), numel(raw_data)/512/size(ra
 %% transducer setting
 Trans.t_foc_bias = 72.7e-3; %72 * 1e-3; % distance between surface and arc, % for air-air
 
-Trans.t_init_angle = 90; %180; % degrees, % -87
+Trans.t_init_angle = 89; %180; % degrees, % -87
 
 Trans.t_Nsteps = 403; %433; %595; %Acq.Nf;% no. of positions = no. of frames
 Trans.t_foclens = 1.00 * 25.4 * 1e-3;% focus length
@@ -43,7 +43,7 @@ Display.center_z = 0 * 1e-3; % m
 
 %% acquisition para
 Acq.c = 1.483e3; %1.495 * 1e3;% speed of sound (m/s)
-Acq.delay = 0; %-(Trans.t_foclens)/Acq.c; % trigger delay of DAQ between US transmission
+Acq.delay = -Trans.t_foclens/Acq.c; % trigger delay of DAQ between US transmission
 Acq.delay_revise_m =(0)*1e-6 * Acq.c + Acq.delay; % DAQ delay , 25 sampling error of DAQ = 0.625us
 
 %% show sinogram
@@ -54,25 +54,30 @@ Display = f_set_display(Display);
 
 %% reconstruction
 tic
-for i = 1:10
-    
-    Trans.t_focus = Trans.t_xyz(:,i);
-    Trans.apo_receive = Trans.r_apo_list(:,i);
-    
-    stat_disp = fprintf('recon: %i / %i \n', i, Trans.t_Nsteps);
-    
-    [Reconpara, Display]= f_recon_rusct_para(Acq,Trans,Display);
-    Reconpara.map_epim_xoy(Reconpara.map_epim_xoy < 1) = 1; % remove zeros points
-    
-    reIMG2 = subfunc_2d_cuda_reduce(raw_data(:,:,i), Acq.c/1e3, Acq.delay*Acq.fs, Acq.fs/1e6, ...
-        Trans.x_receive*1e3, Trans.y_receive*1e3, Display.xm*1e3, Display.ym*1e3, Reconpara.map_epim_xoy);
+% for i = 1:10
+%     
+%     Trans.t_focus = Trans.t_xyz(:,i);
+%     Trans.apo_receive = Trans.r_apo_list(:,i);
+%     
+%     stat_disp = fprintf('recon: %i / %i \n', i, Trans.t_Nsteps);
+%     
+%     [Reconpara, Display]= f_recon_rusct_para(Acq,Trans,Display);
+%     Reconpara.map_epim_xoy(Reconpara.map_epim_xoy < 1) = 1; % remove zeros points
+%     
+%     reIMG2 = subfunc_2d_cuda_reduce(raw_data(:,:,i), Acq.c/1e3, Acq.delay*Acq.fs, Acq.fs/1e6, ...
+%         Trans.x_receive*1e3, Trans.y_receive*1e3, Display.xm*1e3, Display.ym*1e3, Reconpara.map_epim_xoy);
+% 
+%     ReconData = zeros(size(reIMG2,1),size(reIMG2,2),Trans.t_Nsteps);
+%     recon_compound = zeros(size(reIMG2,1),size(reIMG2,2));
+%     ReconData(:,:,i) = reIMG2;
+%     recon_compound = recon_compound + reIMG2;
+%     
+% end
 
-    ReconData = zeros(size(reIMG2,1),size(reIMG2,2),Trans.t_Nsteps);
-    recon_compound = zeros(size(reIMG2,1),size(reIMG2,2));
-    ReconData(:,:,i) = reIMG2;
-    recon_compound = recon_compound + reIMG2;
-    
-end
+reIMG2 = subfunc_2d_cuda_reduce(raw_data, Acq.c/1e3, Acq.delay*Acq.fs, Acq.fs/1e6, ...
+        Trans.x_receive*1e3, Trans.y_receive*1e3, Trans.x_transmit*1e3, Trans.y_transmit*1e3,...
+        Display.xm*1e3, Display.ym*1e3);
+
 toc
 
 figure
@@ -81,10 +86,10 @@ xlabel ('--y++')
 ylabel ('--x++')
 
 %% display
-% dynamic_range = [-10,0];
-% imagedata = abs(reIMG2) ./ max(abs(reIMG2(:)));
-% imagelog = 20 * log10(imagedata);
-% figure();
-% % imagesc(Display.xm(x_ind) * 1e2,Display.ym(y_ind) * 1e2, imagelog(y_ind,x_ind), dynamic_range);colormap(gray); colorbar;
-% imagesc(imagelog, dynamic_range);colormap(gray); colorbar;
-% % xlabel('X (cm)');ylabel('Y (cm)');axis('image');
+dynamic_range = [-20,0];
+imagedata = abs(reIMG2) ./ max(abs(reIMG2(:)));
+imagelog = 20 * log10(imagedata);
+figure();
+% imagesc(Display.xm(x_ind) * 1e2,Display.ym(y_ind) * 1e2, imagelog(y_ind,x_ind), dynamic_range);colormap(gray); colorbar;
+imagesc(imagelog, dynamic_range);colormap(gray); colorbar;
+% xlabel('X (cm)');ylabel('Y (cm)');axis('image');

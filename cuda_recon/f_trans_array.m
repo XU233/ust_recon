@@ -59,6 +59,9 @@ y_transmit = sin(transmit_angle)*Rt + Trans.y_offset;
 z_transmit= zeros(1,Nstep);
 Trans.t_xyz = single(cat(1,x_transmit, y_transmit, z_transmit));
 
+Trans.x_transmit = x_transmit;
+Trans.y_transmit = y_transmit;
+
 
 %% detection apodization
 Trans.r_Napo = round((Trans.r_Aapo/360) * Trans.r_elements); % no. of elements
