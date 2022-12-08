@@ -44,7 +44,10 @@ d_delay = d_emit;
 % positioins or profiles in sample index of channel data
 map_epim = ceil(d_delay/Acq.c*Acq.fs);
 
+% map_epim = reshape(map_epim,numel(map_epim),1);     % id = xm + ym * Nx
+
 Reconpara.map_epim_xoy = single(map_epim);
+
 
 
 % solid angle weight

@@ -36,7 +36,7 @@ Trans = f_trans_array(Trans); % Trans.rapo_list;
 Display.x_range = 128 * 1e-3; % m
 Display.y_range = 128 * 1e-3; % m
 Display.z_range = 0 * 1e-3; % m
-Display.res_factor = 2; % resolution factor: no. of pixels per mm
+Display.res_factor = 4; % resolution factor: no. of pixels per mm
 Display.center_x = 0 * 1e-3;
 Display.center_y = 0 * 1e-3;
 Display.center_z = 0 * 1e-3; % m
@@ -47,14 +47,14 @@ Acq.delay = 0; %-(Trans.t_foclens)/Acq.c; % trigger delay of DAQ between US tran
 Acq.delay_revise_m =(0)*1e-6 * Acq.c + Acq.delay; % DAQ delay , 25 sampling error of DAQ = 0.625us
 
 %% show sinogram
-f_show_sinogram(Trans, Acq, raw_data)
+% f_show_sinogram(Trans, Acq, raw_data)
 
 %% set display
 Display = f_set_display(Display);
 
 %% reconstruction
 tic
-for i = 1:Trans.t_Nsteps
+for i = 1:10
     
     Trans.t_focus = Trans.t_xyz(:,i);
     Trans.apo_receive = Trans.r_apo_list(:,i);
@@ -64,22 +64,21 @@ for i = 1:Trans.t_Nsteps
     [Reconpara, Display]= f_recon_rusct_para(Acq,Trans,Display);
     Reconpara.map_epim_xoy(Reconpara.map_epim_xoy < 1) = 1; % remove zeros points
     
-%     reIMG2 = subfunc_2d_cuda_reduce(raw_data(:,:,i), Acq.c/1e3, Acq.delay*Acq.fs, Acq.fs/1e6, ...
-%         Trans.x_receive*1e3, Trans.y_receive*1e3, Display.xm*1e3, Display.ym*1e3, Reconpara.map_epim_xoy);
-% 
-%     ReconData = zeros(size(reIMG2,1),size(reIMG2,2),Trans.t_Nsteps);
-%     recon_compound = zeros(size(reIMG2,1),size(reIMG2,2));
-%     ReconData(:,:,i) = reIMG2;
-%     recon_compound = recon_compound + reIMG2;
+    reIMG2 = subfunc_2d_cuda_reduce(raw_data(:,:,i), Acq.c/1e3, Acq.delay*Acq.fs, Acq.fs/1e6, ...
+        Trans.x_receive*1e3, Trans.y_receive*1e3, Display.xm*1e3, Display.ym*1e3, Reconpara.map_epim_xoy);
+
+    ReconData = zeros(size(reIMG2,1),size(reIMG2,2),Trans.t_Nsteps);
+    recon_compound = zeros(size(reIMG2,1),size(reIMG2,2));
+    ReconData(:,:,i) = reIMG2;
+    recon_compound = recon_compound + reIMG2;
     
 end
 toc
 
-% figure('Name',string(delay)); 
-% XY_view = squeeze(max((reIMG2(:,:)),[],3));
-% imshow(XY_view,[]) % Top view, XY
-% xlabel ('--y++')
-% ylabel ('--x++')
+figure
+imshow(reIMG2,[]) % Top view, XY
+xlabel ('--y++')
+ylabel ('--x++')
 
 %% display
 % dynamic_range = [-10,0];

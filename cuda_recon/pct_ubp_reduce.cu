@@ -23,7 +23,7 @@ __global__ void ubp(
                       const unsigned int Nphi, 
                       const unsigned int Nt,
                       const float fixedDelay, 
-					  const float map_epim,
+					  const float * map_epim,
                       const float tv, 
                       const float * data ) {
     // Work out which thread we are
@@ -48,7 +48,7 @@ __global__ void ubp(
     float const yki = yk[transducerIdx];
     float const zki = zk[transducerIdx];
     float const d = sqrt( (xi-xki) * (xi-xki) + (yi-yki) * (yi-yki) + (zi-zki) * (zi-zki));
-    float idxf = rintf(d * tv) - fixedDelay;
+    float idxf = rintf(d * tv) - fixedDelay + map_epim[globalVolumeIndex];
     int idx = __float2int_rd(idxf);
     idx = max( idx, 0);
     idx = min( idx, Nt - 1); 

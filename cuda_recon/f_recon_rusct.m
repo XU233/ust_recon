@@ -8,7 +8,7 @@ function Recondata = f_recon_rusct(Trans,Display,Reconpara,rawdata)
 % xoy recon
 recon_data_xoy = zeros(Display.Ny,Display.Nx);
 recon_data_xoy = single(recon_data_xoy);
-for k = 1 : Trans.relements
+for k = 1 : Trans.r_elements
 % temp_data = rawdata(:,k);
 temp_data = rawdata(k,:); % correct
 temp_map = Reconpara.map_epim_xoy(:,:,k);
