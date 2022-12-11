@@ -3,7 +3,7 @@ function Trans = f_trans_array(Trans)
 %% Receiver array
 calibFile = 1;
 if calibFile
-    load('C:\Users\Legion12\Downloads\sdk1.1 20220429\SDK 1.1\examples\matlab\Data 2022-12-01\calibrated_coordinates\calibrated_coords_2.mat')
+    load('E:\OneDrive - California Institute of Technology\PhD\experiments\ust\calibrated_coordinates\calibrated_coords_2.mat')
     R = R_calibrated; 
     
     n_receive = 1:512;
@@ -45,6 +45,8 @@ else
     transmit_angle = (Nstep-1:-1:0)*angle_per_step - angle_step1; % minus? Tbc.
 end
 
+
+transmit_angle = (0:Nstep-1)*angle_per_step + angle_step1;
 % transmit_angle (0,2*pi)
 transmit_angle(transmit_angle<0) = transmit_angle(transmit_angle<0) + 2 * pi; % negative 
 transmit_angle(transmit_angle>2*pi) = transmit_angle(transmit_angle>2*pi) - 2 * pi;
@@ -63,10 +65,16 @@ Trans.x_transmit = x_transmit;
 Trans.y_transmit = y_transmit;
 
 
+%%
+transmit_angle = (Nstep-1:-1:0)*angle_per_step - angle_step1; % minus? Tbc.
+transmit_angle(transmit_angle<0) = transmit_angle(transmit_angle<0) + 2 * pi; % negative 
+transmit_angle(transmit_angle>2*pi) = transmit_angle(transmit_angle>2*pi) - 2 * pi;
+
 %% detection apodization
 Trans.r_Napo = round((Trans.r_Aapo/360) * Trans.r_elements); % no. of elements
 % temp_center = linspace(1,Trans.r_elements,Trans.t_Nsteps);% center of apo = center of transmission position
 
+transmit_angle = transmit_angle - pi;
 r_list = linspace(1,Trans.r_elements,Trans.r_elements);
 temp_center = round(transmit_angle./(2*pi) * Trans.r_elements); % center for 
 Trans.r_apo_center = temp_center;
@@ -76,7 +84,9 @@ temp_alist = temp_alist(1 : Trans.r_Napo);% for center apo range
 
 Trans.r_apo_list = zeros(Trans.r_elements,Trans.t_Nsteps);
 for i = 1 : Trans.t_Nsteps
+    %temp0_list = circshift(r_list, round(Trans.r_elements/2));% center if no bias of initial angle
     temp0_list = circshift(r_list, round(Trans.r_elements/2));% center if no bias of initial angle
+    %temp_list = circshift(temp0_list , -temp_center(i)); % 133-387-512-120 (initial = 387)
     temp_list = circshift(temp0_list , -temp_center(i)); % 133-387-512-120 (initial = 387)
     temp_apo_list = temp_list(temp_alist);
     temp_apo = tukeywin(length(temp_apo_list),0.25); % add tukey win for suppression of side lobes

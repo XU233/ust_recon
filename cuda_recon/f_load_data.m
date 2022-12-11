@@ -33,8 +33,8 @@ if Para.hilbert == 1
 %     temp = single(zeros(200,size(cdata,2),size(cdata,3)));% add zeros
 %     cdata = cat(1,cdata,temp);
     for i = 1:size(raw_data,3)
-        raw_data(:,:,i) = hilbert(bandpass(raw_data(:,:,i), [0.3e6,1.3e6],Acq.fs));
-        %raw_data(:,:,i) = abs(hilbert(raw_data(:,:,i)));
+        %raw_data(:,:,i) = hilbert(bandpass(raw_data(:,:,i), [0.3e6,1.3e6],Acq.fs));
+        raw_data(:,:,i) = abs(hilbert(raw_data(:,:,i)));
     end
     %raw_data = cdata;
 end
