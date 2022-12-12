@@ -1,15 +1,19 @@
-function Trans = f_trans_array(Trans)
+function [Trans,raw_data] = f_trans_array(Trans,raw_data)
 
 %% Receiver array
 calibFile = 1;
 if calibFile
-    load('E:\OneDrive - California Institute of Technology\PhD\experiments\ust\calibrated_coordinates\calibrated_coords_2.mat')
+    load('C:\Users\Legion12\Downloads\sdk1.1 20220429\SDK 1.1\examples\matlab\Data 2022-12-01\calibrated_coordinates\calibrated_coords_2.mat')
     R = R_calibrated; 
     
     n_receive = 1:512;
-%     n_receive(fault_id) = [];
+    
     x_receive = tx_x(n_receive,2).';
     y_receive = tx_x(n_receive,1).';
+    
+    raw_data(fault_id,:,:) = zeros(length(fault_id),size(raw_data,2),size(raw_data,3));
+    
+    n_receive(fault_id) = [];
 else
     n_receive = 1:512;
     R = 610.8 * 1e-3/2;    %mm, For Breast transducer
@@ -28,7 +32,7 @@ end
 Trans.x_receive = x_receive;
 Trans.y_receive = y_receive;
 Trans.r_valid_id = n_receive; 
-Trans.r_elements = length(n_receive);
+Trans.r_elements = length(x_receive);
 
 z_receive = zeros(1,length(x_receive));
 Trans.r_xyz = single(cat(1,x_receive, y_receive, z_receive));

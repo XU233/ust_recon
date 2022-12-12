@@ -1,14 +1,17 @@
 % default SI units
 
 clear all; clc
+% 
+% %% load data
+% %Para.datapath = 'C:\Users\Legion12\Downloads\sdk1.1 20220429\SDK 1.1\examples\matlab\Data 2022-12-01\';
+% % Para.dataname = 'Data 2022-12-01 19-55-30 avg-remap short'; 
+% 
+% Para.datapath = 'C:\Users\Legion12\Downloads\sdk1.1 20220429\SDK 1.1\examples\matlab\Data 2022-12-01\';
+% %Para.dataname = 'Data 2022-12-01 19-55-30 avg-remap'; 
+% Para.dataname = 'phantom_2022-12-01 11-22-26_avg-remap'; 
 
-%% load data
-%Para.datapath = 'C:\Users\Legion12\Downloads\sdk1.1 20220429\SDK 1.1\examples\matlab\Data 2022-12-01\';
-% Para.dataname = 'Data 2022-12-01 19-55-30 avg-remap short'; 
-
-Para.datapath = 'E:\OneDrive - California Institute of Technology\PhD\experiments\ust\2022-12-01\';
-%Para.dataname = 'Data 2022-12-01 19-55-30 avg-remap'; 
-Para.dataname = 'phantom_2022-12-01 11-22-26_avg-remap'; 
+Para.datapath = 'C:\Users\Legion12\Downloads\sdk1.1 20220429\SDK 1.1\examples\matlab\Data 2022-12-12\';
+Para.dataname = 'phantom_filters'; 
 
 Para.display = 0; % Display raw signal or not
 Para.hilbert = 0; % single to complex single
@@ -35,19 +38,19 @@ Trans.r_Aapo = 180; %  (degrees) Angle range of detection array elements for rec
 Trans.x_offset = 0e-3; %-5e-3; %0; %12e-3;
 Trans.y_offset = 0e-3; %-5e-3; %17e-3;
 Trans.t_scan_angle = 2*pi; % 2*pi
-Trans = f_trans_array(Trans); % Trans.rapo_list;
+[Trans,raw_data] = f_trans_array(Trans,raw_data); % Trans.rapo_list;
 
 %% display field of view
-Display.x_range = 128 * 2 * 1e-3; % m
-Display.y_range = 128 * 2 * 1e-3; % m
+Display.x_range = 256 * 2 * 1e-3; % m
+Display.y_range = 256 * 2 * 1e-3; % m
 Display.z_range = 0 * 1e-3; % m
-Display.res_factor = 8; % resolution factor: no. of pixels per mm
+Display.res_factor = 4; % resolution factor: no. of pixels per mm
 Display.center_x = 0 * 1e-3;
 Display.center_y = 0 * 1e-3;
 Display.center_z = 0 * 1e-3; % m
 
 %% acquisition para
-Acq.c = 1.483e3; %1.495 * 1e3;% speed of sound (m/s)
+Acq.c = 1.482343e3; %1.495 * 1e3;% speed of sound (m/s)
 Acq.delay = -Trans.t_foclens/Acq.c; % trigger delay of DAQ between US transmission
 Acq.delay_revise_m =(0)*1e-6 * Acq.c + Acq.delay; % DAQ delay , 25 sampling error of DAQ = 0.625us
 
@@ -75,7 +78,8 @@ tic
 %     stat_disp = fprintf('recon: %i / %i \n', i, Trans.t_Nsteps);
 %     
 %     [Reconpara, Display]= f_recon_rusct_para(Acq,Trans,Display);
-%     Reconpara.map_epim_xoy(Reconpara.map_epim_xoy < 1) = 1; % remove zeros points
+%     Reconpara.map_epim_xoy(Reconpara.map_epim_xoy < 1) = 1; % remove
+%     zeros points 
 %     
 %     reIMG2 = subfunc_2d_cuda_reduce(raw_data(:,:,i), Acq.c/1e3, Acq.delay*Acq.fs, Acq.fs/1e6, ...
 %         Trans.x_receive*1e3, Trans.y_receive*1e3, Display.xm*1e3, Display.ym*1e3, Reconpara.map_epim_xoy);
@@ -90,7 +94,7 @@ tic
 reIMG_final = zeros(length(Display.xm), length(Display.ym));
 
 plotOpt = 0; 
-for i=1:403
+for i=1:160
     raw_data_used_i = raw_data_used(:,:,i);
 
 %     reIMG2 = subfunc_2d_cuda_reduce(raw_data_used, Acq.c/1e3, Acq.delay*Acq.fs, Acq.fs/1e6, ...
@@ -115,16 +119,23 @@ end
     
 toc
 
-
+% tic
+% reIMG_final = subfunc_2d_cuda_reduce(raw_data_used, Acq.c/1e3, Acq.delay*Acq.fs, Acq.fs/1e6, ...
+%         Trans.x_receive*1e3, Trans.y_receive*1e3, Trans.x_transmit(i)*1e3, Trans.y_transmit(i)*1e3,...
+%         Display.xm*1e3, Display.ym*1e3);
+% toc
 
 %% display
-dynamic_range = [-80,0];
+dynamic_range = [-60,0];
 imagedata = abs(reIMG_final) ./ max(abs(reIMG_final(:)));
 imagelog = 20 * log10(imagedata);
 %imagelog = 20 * log(imagedata);
 
+%
+xind = 300:1800; yind = xind;
 figure();
-% imagesc(Display.xm(x_ind) * 1e2,Display.ym(y_ind) * 1e2, imagelog(y_ind,x_ind), dynamic_range);colormap(gray); colorbar;
-imagesc(imagelog.', dynamic_range);colormap(gray); colorbar;
+% imagesc(Display.xm(xind) * 1e2,Display.ym(yind) * 1e2, imagelog(yind,xind)', dynamic_range);colormap(gray); colorbar;
+imagesc(Display.xm(xind) * 1e2,Display.ym(yind) * 1e2, imagedata(yind,xind)', [0 3e-2]); colormap(gray); colorbar;
+% imagesc(imagelog.', dynamic_range);colormap(gray); colorbar;
 axis equal;
-% xlabel('X (cm)');ylabel('Y (cm)');axis('image');
+xlabel('X (cm)');ylabel('Y (cm)');axis('image');
